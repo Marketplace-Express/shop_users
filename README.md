@@ -1,2 +1,5 @@
-#Shop Users Service
-###Description: `Service description goes here`
+Shop Users Service
+--
+> Description:
+
+Service description goes here

@@ -12,7 +12,6 @@ use App\Exceptions\DuplicationExist;
 use App\Exceptions\NotFound;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
-use App\Models\BannedUser;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;

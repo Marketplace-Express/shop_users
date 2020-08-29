@@ -12,6 +12,7 @@ use App\Exceptions\DuplicationExist;
 use App\Exceptions\NotFound;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
+use App\Http\Controllers\ValidationRules\GetBannedUsersRules;
 use App\Http\Controllers\ValidationRules\RestoreUserRules;
 use App\Http\Requests\BanUserRequest;
 use App\Http\Controllers\ValidationRules\BanUserRules;
@@ -179,10 +180,15 @@ class UserController extends BaseController
     public function getBanned(Request $request)
     {
         try {
+            $this->validation($request, new GetBannedUsersRules());
             $bannedUsers = $this->service->getBanned($request->get('page'), $request->get('limit'));
             $response = $this->prepareResponse(
-                array_map(function ($user) { return $user->toApiArray(); }, $bannedUsers)
+                array_map(function ($user) {
+                    return $user->toApiArray();
+                }, $bannedUsers)
             );
+        } catch (ValidationException $exception) {
+            $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
         } catch (\Throwable $exception) {
             $response = $this->prepareResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

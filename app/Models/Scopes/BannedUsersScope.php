@@ -104,11 +104,13 @@ class BannedUsersScope implements Scope
             $builder->withoutBanned();
 
             $model = $builder->getModel();
-            $bannedUserModel = $model->hasOne(BannedUser::class, $model->primaryKey, 'user_id');
-            $bannedUserModel->create([
+            $bannedUserRelation = $model->hasOne(BannedUser::class, $model->primaryKey, 'user_id');
+            $bannedUserRelation->create([
                 'reason' => $reason,
                 'description' => $description
             ]);
+
+            $builder->where($model->primaryKey, $model->getKey());
 
             return $builder->update([$builder->getModel()->getIsBannedColumn() => true]);
         });
@@ -123,8 +125,10 @@ class BannedUsersScope implements Scope
             $builder->withBanned();
 
             $model = $builder->getModel();
-            $bannedUserModel = $model->hasOne(BannedUser::class, $model->primaryKey, 'user_id');
-            $bannedUserModel->delete();
+            $bannedUserRelation = $model->hasOne(BannedUser::class, $model->primaryKey, 'user_id');
+            $bannedUserRelation->delete();
+
+            $builder->where($model->primaryKey, $model->getKey());
 
             return $builder->update([$builder->getModel()->getIsBannedColumn() => false]);
         });

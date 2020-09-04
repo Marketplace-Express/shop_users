@@ -26,8 +26,9 @@ $app = new Laravel\Lumen\Application(
 $app->instance('path.config', app()->basePath() . DIRECTORY_SEPARATOR . 'config');
 $app->instance('path.storage', app()->basePath() . DIRECTORY_SEPARATOR . 'storage');
 
- $app->withFacades();
- $app->withEloquent();
+$app->withFacades();
+
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------

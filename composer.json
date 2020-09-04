@@ -7,6 +7,7 @@
         "php": "^7.2.5",
         "ext-json": "*",
         "firebase/php-jwt": "^5.2",
+        "jurry/laravel-rabbitmq": "^1.0",
         "laravel/lumen-framework": "^7.0",
         "laravelista/lumen-vendor-publish": "^7.0"
     },

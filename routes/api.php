@@ -25,6 +25,7 @@ $router->group(['prefix' => 'api', 'middleware' => 'auth'], function () use ($ro
 
     // RoleController
     $router->post('/role/create', 'RoleController@create');
+    $router->delete('/role/{roleId}', 'RoleController@delete');
 });
 
 $router->group(['prefix' => 'api'], function () use ($router) {

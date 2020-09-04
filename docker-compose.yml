@@ -11,6 +11,24 @@ services:
     environment:
       - PHP_IDE_CONFIG=serverName=docker
 
+  users-sync:
+    image: 'registry.gitlab.com/shop_ecommerce/shop_users'
+    command: php artisan amqp:sync_worker
+    volumes:
+      - .:/src
+      - /src/vendor
+    environment:
+      - PHP_IDE_CONFIG=serverName=docker
+
+  users-async:
+    image: 'registry.gitlab.com/shop_ecommerce/shop_users'
+    command: php artisan amqp:async_worker
+    volumes:
+      - .:/src
+      - /src/vendor
+    environment:
+      - PHP_IDE_CONFIG=serverName=docker
+
 networks:
   default:
     external:

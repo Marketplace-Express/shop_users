@@ -22,9 +22,8 @@ use App\Http\Controllers\ValidationRules\RegisterUserRules;
 use App\Http\Controllers\ValidationRules\UnBanUserRules;
 use App\Services\UserService;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response as ActionResponse;
+use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends BaseController
 {
@@ -48,7 +47,7 @@ class UserController extends BaseController
         try {
             $this->validation($request, new RegisterUserRules());
             $user = $this->service->create(json_decode($request->getContent(), true));
-            $response = $this->prepareResponse($user->toApiArray());
+            $response = $this->prepareResponse($user);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->validator->errors(), Response::HTTP_BAD_REQUEST);
         } catch (OperationFailed $exception) {
@@ -71,7 +70,7 @@ class UserController extends BaseController
         try {
             $this->validation($request, new LoginUserRules());
             $token = $this->service->loginByUsernameOrEmail($request->get('user_name'), $request->get('password'));
-            $response = $this->prepareResponse($token->toApiArray());
+            $response = $this->prepareResponse($token);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
         } catch (NotFound $exception) {
@@ -87,14 +86,14 @@ class UserController extends BaseController
 
     /**
      * @param string $userId
-     * @return \Illuminate\Http\JsonResponse|ActionResponse
+     * @return \Illuminate\Http\JsonResponse|Response
      */
     public function delete(string $userId)
     {
         try {
             $this->validation(new Request(['userId' => $userId]), new DeleteUserRules());
             $this->service->delete($userId);
-            return new ActionResponse(null, Response::HTTP_NO_CONTENT);
+            return new Response(null, Response::HTTP_NO_CONTENT);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
         } catch (NotFound $exception) {
@@ -115,7 +114,7 @@ class UserController extends BaseController
         try {
             $this->validation(new Request(['userId' => $userId]), new RestoreUserRules());
             $user = $this->service->restore($userId);
-            $response = $this->prepareResponse($user->toApiArray());
+            $response = $this->prepareResponse($user);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
         } catch (NotFound $exception) {
@@ -131,14 +130,14 @@ class UserController extends BaseController
 
     /**
      * @param BanUserRequest $request
-     * @return \Illuminate\Http\JsonResponse|ActionResponse
+     * @return \Illuminate\Http\JsonResponse|Response
      */
     public function ban(BanUserRequest $request)
     {
         try {
             $this->validation($request, new BanUserRules());
             $this->service->ban($request->all());
-            $response = new ActionResponse(null, Response::HTTP_NO_CONTENT);
+            $response = new Response(null, Response::HTTP_NO_CONTENT);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
         } catch (NotFound $exception) {
@@ -154,14 +153,14 @@ class UserController extends BaseController
 
     /**
      * @param string $userId
-     * @return \Illuminate\Http\JsonResponse|ActionResponse
+     * @return \Illuminate\Http\JsonResponse|Response
      */
     public function unBan(string $userId)
     {
         try {
             $this->validation(new Request(['userId' => $userId]), new UnBanUserRules());
             $this->service->unBan($userId);
-            $response = new ActionResponse(null, Response::HTTP_NO_CONTENT);
+            $response = new Response(null, Response::HTTP_NO_CONTENT);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
         } catch (NotFound $exception) {
@@ -182,11 +181,7 @@ class UserController extends BaseController
         try {
             $this->validation($request, new GetBannedUsersRules());
             $bannedUsers = $this->service->getBanned($request->get('page'), $request->get('limit'));
-            $response = $this->prepareResponse(
-                array_map(function ($user) {
-                    return $user->toApiArray();
-                }, $bannedUsers)
-            );
+            $response = $this->prepareResponse($bannedUsers);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);
         } catch (\Throwable $exception) {

@@ -9,6 +9,8 @@ namespace App\Http\Controllers;
 
 
 use App\Http\Controllers\ValidationRules\RulesInterface;
+use App\Models\Interfaces\ApiArrayData;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
 
@@ -31,9 +33,21 @@ class BaseController extends Controller
      */
     protected function prepareResponse($content, int $code = 200)
     {
+        $response = null; // initialize response variable
+
+        if ($content instanceof ApiArrayData) {
+            $response = $content->toApiArray();
+        }
+
+        if (is_array($content) || $content instanceof Collection) {
+            foreach ($content as $key => $item) {
+                $response[$key] = ($item instanceof ApiArrayData) ? $item->toApiArray() : $item;
+            }
+        }
+
         return response()->json([
             'status' => $code,
-            'message' => $content
+            'message' => $response ?? $content
         ], $code);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
 
@@ -13,7 +14,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        \Laravelista\LumenVendorPublish\VendorPublishCommand::class
+        \Laravelista\LumenVendorPublish\VendorPublishCommand::class,
+        \Jurry\RabbitMQ\Command\SyncConsumerCommand::class,
+        \Jurry\RabbitMQ\Command\AsyncConsumerCommand::class
     ];
 
     /**

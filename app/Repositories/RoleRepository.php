@@ -77,11 +77,11 @@ class RoleRepository
     public function delete(string $roleId, string $storeId)
     {
         $role = Role::where('role_id', $roleId)
-            ->andWhere('store_id', $storeId)
+            ->where('store_id', $storeId)
             ->first();
 
         if (!$role) {
-            throw new NotFound('role already deleted');
+            throw new NotFound('role not found or maybe deleted');
         }
 
         $role->delete();

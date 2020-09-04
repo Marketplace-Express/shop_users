@@ -21,7 +21,7 @@ class CreateRolesTable extends Migration
             $table->uuid('store_id');
             $table->timestamps();
             $table->softDeletes();
-            $table->uuid('deletion_token');
+            $table->uuid('deletion_token')->default('N/A');
 
             // Add unique index
             $table->unique(['role_name', 'store_id', 'deletion_token'], 'unique_role_pre_store');

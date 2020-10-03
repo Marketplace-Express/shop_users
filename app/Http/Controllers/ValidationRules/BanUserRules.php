@@ -23,4 +23,12 @@ class BanUserRules implements RulesInterface
             'reason' => ['required', Rule::in(BanUserReasonsEnum::getValues())]
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getMessages(): array
+    {
+        return [];
+    }
 }

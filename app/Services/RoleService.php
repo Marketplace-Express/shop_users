@@ -70,8 +70,23 @@ class RoleService
         $this->repository->delete($roleId, $storeId);
     }
 
+    /**
+     * @param string $roleId
+     * @return \App\Models\Role
+     * @throws NotFound
+     */
     public function get(string $roleId)
     {
+        return $this->repository->getById($roleId);
+    }
 
+    /**
+     * @param string $roleId
+     * @param string $permission
+     * @throws \Throwable
+     */
+    public function assign(string $roleId, string $permission)
+    {
+        $this->repository->assign($roleId, $permission);
     }
 }

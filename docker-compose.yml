@@ -13,7 +13,7 @@ services:
 
   users-sync:
     image: 'registry.gitlab.com/shop_ecommerce/shop_users'
-    command: php artisan amqp:sync_worker
+    command: bash -c "php artisan amqp:sync_worker | php -S 0.0.0.0:8000 -t public/"
     volumes:
       - .:/src
       - /src/vendor
@@ -22,7 +22,7 @@ services:
 
   users-async:
     image: 'registry.gitlab.com/shop_ecommerce/shop_users'
-    command: php artisan amqp:async_worker
+    command: bash -c "php artisan amqp:async_worker | php -S 0.0.0.0:8000 -t public/"
     volumes:
       - .:/src
       - /src/vendor

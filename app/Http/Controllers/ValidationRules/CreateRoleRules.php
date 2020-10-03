@@ -20,4 +20,12 @@ class CreateRoleRules implements RulesInterface
             'store_id' => ['required', 'uuid']
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getMessages(): array
+    {
+        return [];
+    }
 }

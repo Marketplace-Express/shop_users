@@ -23,4 +23,12 @@ class RestoreUserRules implements RulesInterface
             'userId' => ['required', 'uuid']
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getMessages(): array
+    {
+        return [];
+    }
 }

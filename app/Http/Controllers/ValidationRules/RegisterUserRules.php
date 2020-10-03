@@ -21,9 +21,18 @@ class RegisterUserRules implements RulesInterface
         return [
             'first_name' => ['required', 'max:20'],
             'last_name' => ['required', 'max:20'],
-            'email' => ['email:filter,spoof'],
-            'age' => ['required', 'integer', 'min:18'],
-            'gender' => ['required', Rule::in(GenderEnum::getValues())]
+            'email' => ['required', 'email:filter,spoof'],
+            'gender' => ['required', Rule::in(GenderEnum::getValues())],
+            'birthdate' => ['required', 'date_format:Y-m-d'],
+            'password' => ['required'],
         ];
+    }
+
+    /**
+     * @return array
+     */
+    public function getMessages(): array
+    {
+        return [];
     }
 }

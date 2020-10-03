@@ -32,10 +32,11 @@ class UserRepository
         $user->first_name = $data['first_name'];
         $user->last_name = $data['last_name'];
         $user->email = $data['email'];
-        $user->age = $data['age'];
         $user->gender = $data['gender'];
         $user->birthdate = $data['birthdate'];
         $user->password = Hash::make($data['password']);
+        $this->generateUserName($user);
+        $this->calculateAge($user);
 
         try {
             if (!$user->save()) {
@@ -51,6 +52,26 @@ class UserRepository
     }
 
     /**
+     * @param User $user
+     */
+    protected function generateUserName(User $user)
+    {
+        $user->user_name = str_replace(' ', '.', $user->first_name . ' ' . $user->last_name);
+
+        if ($user->isUserNameExists()) {
+            $user->user_name .= '.' . substr($user->user_id, 9, 4);
+        }
+    }
+
+    /**
+     * @param User $user
+     */
+    public function calculateAge(User $user)
+    {
+        $user->age = date_diff(date_create($user->birthdate), date_create('now'))->y;
+    }
+
+    /**
      * @param string $identifier
      * @param string $password
      * @return mixed
@@ -59,12 +80,10 @@ class UserRepository
      */
     public function getByIdentifierAndPassword(string $identifier, string $password): User
     {
-        $qBuilder = User::where(function ($query) use ($identifier) {
+        $user = User::where(function ($query) use ($identifier) {
             $query->where('user_name', '=', $identifier)
                 ->orWhere('email', '=', $identifier);
-        });
-
-        $user = $qBuilder->first();
+        })->first();
 
         if (!$user) {
             throw new NotFound('user not found');
@@ -72,6 +91,22 @@ class UserRepository
 
         if (!Hash::check($password, $user->password)) {
             throw new OperationNotPermitted('wrong password');
+        }
+
+        return $user;
+    }
+
+    /**
+     * @param string $userId
+     * @return User
+     * @throws NotFound
+     */
+    public function getById(string $userId): User
+    {
+        $user = User::firstWhere('user_id', $userId);
+
+        if (!$user) {
+            throw new NotFound('user not found or maybe deleted');
         }
 
         return $user;

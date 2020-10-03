@@ -4,9 +4,9 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class Tokens extends Migration
+class CreateSuperAdminsTable extends Migration
 {
-    const TABLE_NAME = 'auth_user_tokens';
+    const TABLE_NAME = 'super_admins';
 
     /**
      * Run the migrations.
@@ -16,10 +16,8 @@ class Tokens extends Migration
     public function up()
     {
         Schema::create(self::TABLE_NAME, function (Blueprint $table) {
-            $table->uuid('user_id')->primary();
-            $table->text('token');
-            $table->string('csrf_token', 20);
-            $table->integer('expires_at');
+            $table->id();
+            $table->uuid('user_id');
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class Tokens extends Migration
      */
     public function down()
     {
-        Schema::drop(self::TABLE_NAME);
+        Schema::dropIfExists(self::TABLE_NAME);
     }
 }

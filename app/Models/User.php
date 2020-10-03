@@ -8,16 +8,16 @@
 namespace App\Models;
 
 
-use App\Exceptions\DuplicationExist;
+use App\Models\Collections\RolesCollection;
 use App\Models\Interfaces\ApiArrayData;
 use App\Models\Interfaces\TokenArrayDataInterface;
 use App\Models\Traits\BannedUsers;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\QueryException;
 use Laravel\Lumen\Auth\Authorizable;
 use Ramsey\Uuid\Uuid;
 
@@ -99,11 +99,42 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
+     * @return RolesCollection
+     */
+    public function roles(): RolesCollection
+    {
+        return $this->hasManyThrough(
+            Role::class,
+            UserRole::class,
+            'user_id',
+            'role_id',
+            'user_id',
+            'role_id'
+        )->getResults();
+    }
+
+    /**
      * @return bool
      */
     public function isBanned(): bool
     {
         return $this->is_banned;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasOne(SuperAdmin::class, 'user_id', 'user_id')->exists();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isUserNameExists(): bool
+    {
+        return self::query()->where('user_name', $this->user_name)->exists();
     }
 
     /**

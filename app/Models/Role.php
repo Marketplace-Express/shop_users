@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Collections\RolesCollection;
 use App\Models\Interfaces\ApiArrayData;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,6 +33,30 @@ class Role extends Model implements ApiArrayData
             $model->save();
             return false;
         });
+    }
+
+    public function user()
+    {
+        return $this->belongsToMany(Role::class)->using(UserRole::class)->withPivot([
+            'user_id', 'role_id'
+        ]);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function permissions()
+    {
+        return $this->hasMany(RolePermission::class, 'role_id', 'role_id')->getResults();
+    }
+
+    /**
+     * @param array $models
+     * @return RolesCollection|\Illuminate\Database\Eloquent\Collection
+     */
+    public function newCollection(array $models = [])
+    {
+        return new RolesCollection($models);
     }
 
     /**

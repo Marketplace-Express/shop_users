@@ -47,7 +47,6 @@ class AppServiceProvider extends ServiceProvider
                 env('JURRY_RABBITMQ_PORT'),
                 env('JURRY_RABBITMQ_USERNAME'),
                 env('JURRY_RABBITMQ_PASSWORD'),
-                '\App\Services',
                 [
                     'sync_queue' => [
                         'name' => 'users_sync',

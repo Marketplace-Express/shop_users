@@ -12,6 +12,8 @@ use App\Http\Controllers\ValidationRules\RulesInterface;
 use App\Models\Interfaces\ApiArrayData;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Laravel\Lumen\Routing\Controller;
 
 class BaseController extends Controller
@@ -23,7 +25,7 @@ class BaseController extends Controller
      */
     protected function validation(Request $request, RulesInterface $rules)
     {
-        $this->validate($request, $rules->getRules());
+        $this->validate($request, $rules->getRules(), $rules->getMessages());
     }
 
     /**
@@ -49,5 +51,16 @@ class BaseController extends Controller
             'status' => $code,
             'message' => $response ?? $content
         ], $code);
+    }
+
+    /**
+     * @param $user
+     * @param mixed $ability
+     * @param array $arguments
+     * @return bool|\Illuminate\Auth\Access\Response
+     */
+    public function authorize($ability, $arguments = [])
+    {
+        return app(Gate::class)->forUser(Auth::user())->check($ability, $arguments);
     }
 }

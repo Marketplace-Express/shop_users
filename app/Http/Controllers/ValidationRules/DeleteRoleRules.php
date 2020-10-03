@@ -25,4 +25,12 @@ class DeleteRoleRules implements RulesInterface
             'storeId' => ['required', 'uuid']
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getMessages(): array
+    {
+        return [];
+    }
 }

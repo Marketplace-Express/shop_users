@@ -11,6 +11,7 @@ namespace App\Repositories;
 use App\Exceptions\DuplicationExist;
 use App\Exceptions\NotFound;
 use App\Models\Role;
+use App\Models\RolePermission;
 use Illuminate\Database\QueryException;
 use Ramsey\Uuid\Uuid;
 
@@ -113,5 +114,20 @@ class RoleRepository
         }
 
         return $role;
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $permission
+     * @throws \Throwable
+     */
+    public function assign(string $roleId, string $permission)
+    {
+        $permission = new RolePermission([
+            'role_id' => $roleId,
+            'permission_key' => $permission
+        ]);
+
+        $permission->saveOrFail();
     }
 }

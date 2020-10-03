@@ -11,12 +11,16 @@ namespace App\Services;
 use App\Exceptions\DuplicationExist;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
+use App\Http\Controllers\Annotations\Permissions;
 use App\Models\Interfaces\TokenArrayDataInterface;
 use App\Models\Token;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
+use Illuminate\Contracts\Auth\Access\Gate;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class AuthServiceProvider
@@ -35,9 +39,9 @@ class AuthService implements AuthInterface
     private $userRepository;
 
     /**
-     * @var Token
+     * @var object
      */
-    private $userToken;
+    private $decodedToken;
 
     /**
      * AuthServiceProvider constructor.
@@ -65,52 +69,73 @@ class AuthService implements AuthInterface
         }
 
         $user = $this->userRepository->getByIdentifierAndPassword($identifier, $password);
+        $token = $this->getUserToken($user);
 
-        if ($this->isAuthenticated($user, $this->getPublicKey())) {
-            return $this->userToken ?? $this->getUserToken($user);
+        if (!empty($token)) {
+            if ($this->isAuthenticated($token->token)) {
+                return $token;
+            } else {
+                $token->delete();
+            }
         }
+
+        // Generate new CSRF Token
+        $csrfToken = str_shuffle('0a1b2c3d4e5f6g7h8i9j');
 
         $generatedToken = $this->generateToken([
             'sub' => $user->email,
             'iss' => env('APP_NAME'),
             'exp' => time() + env('JWT_TTL') * 3600, // hours to seconds,
-            'user' => ($user instanceof TokenArrayDataInterface) ? $user->toTokenArrayData() : $user->toArray()
+            'user' => ($user instanceof TokenArrayDataInterface) ? $user->toTokenArrayData() : $user->toArray(),
+            'csrf_token' => $csrfToken
         ]);
 
-        return $this->saveGeneratedToken($user->getAuthIdentifier(), $generatedToken);
+        return $this->saveGeneratedToken($user->getAuthIdentifier(), $generatedToken, $csrfToken);
     }
 
     /**
-     * @param User $user
-     * @param $permission
+     * @param string $userId
+     * @param array $permissionsAsked
+     * @param string $operator
+     * @param null $policyModel
      * @return bool
      */
-    public function isAuthorized(User $user, $permission): bool
+    public function isAuthorized(string $userId, array $permissionsAsked = [], string $operator = Permissions::OPERATOR_AND, $policyModel = null): bool
     {
-        return $user->can($permission);
-    }
-
-    /**
-     * @param User $user
-     * @param $publicKey
-     * @return bool
-     */
-    public function isAuthenticated(User $user, $publicKey): bool
-    {
-        if (empty($publicKey)) {
-            return false;
+        if (!empty($permissionsAsked)) {
+            if ($operator == Permissions::OPERATOR_AND) {
+                if (!app(Gate::class)->forUser(Auth::user())->check($permissionsAsked, [$policyModel])) {
+                    return false;
+                }
+            } elseif ($operator == Permissions::OPERATOR_OR) {
+                if (!app(Gate::class)->forUser(Auth::user())->any($permissionsAsked, [$policyModel])) {
+                    return false;
+                }
+            }
         }
 
-        $token = $this->userToken = $this->getUserToken($user);
+        return true;
+    }
 
+    /**
+     * @param string $token
+     * @return bool
+     *
+     * TODO: move to API service
+     */
+    public function isAuthenticated(string $token): bool
+    {
         if (!$token) {
             return false;
         }
 
         try {
-            $this->jwt::decode($token->token, $this->getPublicKey(), [env('JWT_ALG')]);
-        } catch (ExpiredException $exception) {
-            $token->delete(); // delete token if exists
+            $token = $this->decodedToken = $this->jwt::decode($token, $this->getPublicKey(), [env('JWT_ALG')]);
+        } catch (\Throwable $exception) {
+            return false;
+        }
+
+        if ($token->csrf_token !== request()->header('csrf-token')) {
             return false;
         }
 
@@ -129,14 +154,16 @@ class AuthService implements AuthInterface
     /**
      * @param string $userId
      * @param string $token
+     * @param string $csrfToken
      * @return Token
      * @throws OperationFailed
      */
-    private function saveGeneratedToken(string $userId, string $token): Token
+    private function saveGeneratedToken(string $userId, string $token, string $csrfToken): Token
     {
         $token = new Token([
             'user_id' => $userId,
             'token' => $token,
+            'csrf_token' => $csrfToken,
             'expires_at' => time() + env('JWT_TTL') * 3600 //seconds
         ]);
 
@@ -159,9 +186,17 @@ class AuthService implements AuthInterface
     private function getUserToken(User $user): ?Token
     {
         $token = new Token();
-        return $this->userToken = $token::where(
+        return $token::firstWhere(
             $token->getAuthIdentifierName(), $user->getAuthIdentifier()
-        )->first();
+        );
+    }
+
+    /**
+     * @return object
+     */
+    public function getDecodedToken(): object
+    {
+        return $this->decodedToken;
     }
 
     /**
@@ -175,7 +210,7 @@ class AuthService implements AuthInterface
     /**
      * @return false|string
      */
-    private function getPublicKey()
+    public function getPublicKey()
     {
         return file_get_contents(app()->basePath() . DIRECTORY_SEPARATOR . env('JWT_PUBLIC_KEY'));
     }

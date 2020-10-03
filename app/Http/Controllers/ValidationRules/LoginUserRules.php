@@ -21,4 +21,12 @@ class LoginUserRules implements RulesInterface
             'password' => ['required']
         ];
     }
+
+    /**
+     * @return array
+     */
+    public function getMessages(): array
+    {
+        return [];
+    }
 }

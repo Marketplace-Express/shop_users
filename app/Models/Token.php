@@ -26,7 +26,7 @@ class Token extends Model implements ApiArrayData, Authenticatable
      * @var string[]
      */
     protected $fillable = [
-        'user_id', 'token', 'expires_at'
+        'user_id', 'token', 'csrf_token', 'expires_at'
     ];
 
     /**
@@ -36,6 +36,7 @@ class Token extends Model implements ApiArrayData, Authenticatable
     {
         return [
             'token' => $this->token,
+            'csrf_token' => $this->csrf_token,
             'expires_at' => Carbon::createFromTimestamp($this->expires_at)->toDateTimeString()
         ];
     }

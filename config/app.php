@@ -123,7 +123,8 @@ return [
     |
     */
     'providers' => [
-        \App\Providers\AppServiceProvider::class
+        \App\Providers\AppServiceProvider::class,
+        \App\Providers\AuthServiceProvider::class
     ],
     'local_providers' => [
         \Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class,

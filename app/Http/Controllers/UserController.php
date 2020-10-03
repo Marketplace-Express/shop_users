@@ -12,6 +12,8 @@ use App\Exceptions\DuplicationExist;
 use App\Exceptions\NotFound;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
+use App\Http\Controllers\Annotations\Permissions;
+use App\Http\Controllers\Interfaces\Authorizable;
 use App\Http\Controllers\ValidationRules\GetBannedUsersRules;
 use App\Http\Controllers\ValidationRules\RestoreUserRules;
 use App\Http\Requests\BanUserRequest;
@@ -20,12 +22,13 @@ use App\Http\Controllers\ValidationRules\DeleteUserRules;
 use App\Http\Controllers\ValidationRules\LoginUserRules;
 use App\Http\Controllers\ValidationRules\RegisterUserRules;
 use App\Http\Controllers\ValidationRules\UnBanUserRules;
+use App\Policies\Store\Store;
 use App\Services\UserService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Validation\ValidationException;
 
-class UserController extends BaseController
+class UserController extends BaseController implements Authorizable
 {
     private $service;
 
@@ -36,6 +39,15 @@ class UserController extends BaseController
     public function __construct(UserService $service)
     {
         $this->service = $service;
+        $this->middleware('authorization');
+    }
+
+    /**
+     * @return string
+     */
+    public function getPolicyModel(): string
+    {
+        return Store::class;
     }
 
     /**
@@ -87,6 +99,8 @@ class UserController extends BaseController
     /**
      * @param string $userId
      * @return \Illuminate\Http\JsonResponse|Response
+     *
+     * @Permissions(grants={"deleteUser"})
      */
     public function delete(string $userId)
     {

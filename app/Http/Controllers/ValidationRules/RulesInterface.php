@@ -11,4 +11,6 @@ namespace App\Http\Controllers\ValidationRules;
 interface RulesInterface
 {
     public function getRules(): array;
+
+    public function getMessages(): array;
 }

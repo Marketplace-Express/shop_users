@@ -8,9 +8,7 @@
 namespace App\Services;
 
 
-use App\Http\Controllers\Annotations\Permissions;
 use App\Models\Token;
-use App\Models\User;
 
 interface AuthInterface
 {
@@ -22,9 +20,10 @@ interface AuthInterface
     public function authenticate(string $identifier, string $password): Token;
 
     /**
-     * @param string $userId
-     * @param array $permissionsAsked
+     * @param string $token
+     * @param array $permissions
+     * @param string $policyModelName
      * @return bool
      */
-    public function isAuthorized(string $userId, array $permissionsAsked): bool;
+    public function isAuthorized(string $token, array $permissions, string $policyModelName): bool;
 }

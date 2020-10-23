@@ -80,7 +80,7 @@ class UserRepository
      */
     public function getByIdentifierAndPassword(string $identifier, string $password): User
     {
-        $user = User::where(function ($query) use ($identifier) {
+        $user = User::withoutBanned()->where(function ($query) use ($identifier) {
             $query->where('user_name', '=', $identifier)
                 ->orWhere('email', '=', $identifier);
         })->first();

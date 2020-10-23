@@ -39,24 +39,11 @@ class RoleService
      * @param string $roleName
      * @param string $storeId
      * @return \App\Models\Role
-     * @throws \App\Exceptions\NotFound
      * @throws \App\Exceptions\DuplicationExist
-     * @throws \ErrorException
      * @throws \Throwable
      */
     public function create(string $roleName, string $storeId)
     {
-        $store = $this->dataGrabber->fetch(
-            'stores_sync',
-            'store',
-            'getById',
-            $storeId
-        );
-
-        if (empty($store)) {
-            throw new NotFound('store not found or maybe deleted');
-        }
-
         return $this->repository->create($roleName, $storeId);
     }
 

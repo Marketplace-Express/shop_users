@@ -86,7 +86,7 @@ class Authorization
         $controller = app($controller);
 
         if (!$controller instanceof Authorizable) {
-            throw new \Exception('Controller should implements Authorizable interface');
+            throw new \Exception('Controller should implement Authorizable interface');
         }
 
         return $controller->getPolicyModel();

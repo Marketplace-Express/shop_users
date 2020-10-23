@@ -20,8 +20,8 @@ class GetBannedUsersRules implements RulesInterface
     public function getRules(): array
     {
         return [
-            'page' => ['integer', 'min:1'],
-            'limit' => ['integer', 'min:1']
+            'page' => ['required', 'integer', 'min:1'],
+            'limit' => ['required', 'integer', 'min:1']
         ];
     }
 

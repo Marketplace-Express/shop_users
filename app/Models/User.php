@@ -15,7 +15,6 @@ use App\Models\Traits\BannedUsers;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Lumen\Auth\Authorizable;
@@ -127,6 +126,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function isSuperAdmin(): bool
     {
         return $this->hasOne(SuperAdmin::class, 'user_id', 'user_id')->exists();
+    }
+
+    public function isStoreAdmin(string $storeId)
+    {
+        $userRoles = $this->roles()->all();
+        $storesIds = array_column($userRoles, 'store_id');
+
+        return !empty($storeId) && in_array($storeId, $storesIds, true);
     }
 
     /**

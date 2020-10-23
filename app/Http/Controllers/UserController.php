@@ -39,7 +39,6 @@ class UserController extends BaseController implements Authorizable
     public function __construct(UserService $service)
     {
         $this->service = $service;
-        $this->middleware('authorization');
     }
 
     /**
@@ -157,7 +156,7 @@ class UserController extends BaseController implements Authorizable
         } catch (NotFound $exception) {
             $response = $this->prepareResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
         } catch (DuplicationExist $exception) {
-            $response = $this->prepareResponse('User is already banned');
+            $response = $this->prepareResponse('User is already banned', Response::HTTP_BAD_REQUEST);
         } catch (\Throwable $exception) {
             $response = $this->prepareResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

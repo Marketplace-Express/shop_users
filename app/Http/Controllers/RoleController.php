@@ -29,7 +29,6 @@ class RoleController extends BaseController implements Authorizable
     public function __construct(RoleService $service)
     {
         $this->service = $service;
-        $this->middleware('authorization');
     }
 
     /**

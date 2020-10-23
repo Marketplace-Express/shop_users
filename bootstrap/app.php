@@ -80,10 +80,10 @@ $app->configure('auth');
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
- $app->routeMiddleware([
-     'authentication' => App\Http\Middleware\Authenticate::class,
-     'authorization' => App\Http\Middleware\Authorization::class,
- ]);
+// $app->routeMiddleware([
+//     'authentication' => App\Http\Middleware\Authenticate::class,
+//     'authorization' => App\Http\Middleware\Authorization::class,
+// ]);
 
 /*
 |--------------------------------------------------------------------------

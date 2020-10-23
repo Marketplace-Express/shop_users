@@ -8,7 +8,9 @@
 namespace App\Services;
 
 
+use App\Exceptions\DuplicationExist;
 use App\Repositories\UserRepository;
+use Illuminate\Database\QueryException;
 
 class UserService
 {
@@ -81,7 +83,13 @@ class UserService
      */
     public function ban(array $data = [])
     {
-        $this->repository->ban($data['userId'], $data['reason'], $data['description']);
+        try {
+            $this->repository->ban($data['userId'], $data['reason'], $data['description']);
+        } catch (QueryException $exception) {
+            if ($exception->getCode() == "23000") {
+                throw new DuplicationExist('user is already banned', 400);
+            }
+        }
     }
 
     /**

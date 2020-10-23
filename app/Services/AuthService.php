@@ -15,6 +15,7 @@ use App\Http\Controllers\Annotations\Permissions;
 use App\Models\Interfaces\TokenArrayDataInterface;
 use App\Models\Token;
 use App\Models\User;
+use App\Policies\Policy;
 use App\Repositories\UserRepository;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
@@ -80,13 +81,13 @@ class AuthService implements AuthInterface
         }
 
         // Generate new CSRF Token
-        $csrfToken = str_shuffle('0a1b2c3d4e5f6g7h8i9j');
+        $csrfToken = $this->generateCsrfToken();
 
         $generatedToken = $this->generateToken([
             'sub' => $user->email,
             'iss' => env('APP_NAME'),
             'exp' => time() + env('JWT_TTL') * 3600, // hours to seconds,
-            'user' => ($user instanceof TokenArrayDataInterface) ? $user->toTokenArrayData() : $user->toArray(),
+            'user' => $user->toTokenArrayData(),
             'csrf_token' => $csrfToken
         ]);
 
@@ -94,23 +95,46 @@ class AuthService implements AuthInterface
     }
 
     /**
-     * @param string $userId
-     * @param array $permissionsAsked
+     * @param string $token
+     * @param array $permissions
+     * @param string $policyModelName
      * @param string $operator
-     * @param null $policyModel
+     * @param array $authorizeData
      * @return bool
      */
-    public function isAuthorized(string $userId, array $permissionsAsked = [], string $operator = Permissions::OPERATOR_AND, $policyModel = null): bool
+    public function isAuthorized(
+        string $token,
+        array $permissions,
+        string $policyModelName,
+        string $operator = Permissions::OPERATOR_AND,
+        array $authorizeData = []
+    ): bool
     {
-        if (!empty($permissionsAsked)) {
-            if ($operator == Permissions::OPERATOR_AND) {
-                if (!app(Gate::class)->forUser(Auth::user())->check($permissionsAsked, [$policyModel])) {
-                    return false;
-                }
-            } elseif ($operator == Permissions::OPERATOR_OR) {
-                if (!app(Gate::class)->forUser(Auth::user())->any($permissionsAsked, [$policyModel])) {
-                    return false;
-                }
+        if (!$this->isAuthenticated($token)) {
+            return false;
+        }
+
+        if (empty($permissions)) {
+            return true;
+        }
+
+        $userId = @$this->getDecodedToken()->user->user_id;
+
+        if (empty($userId)) {
+            return false;
+        }
+
+        $user = User::withoutBanned()->firstWhere('user_id', $userId);
+
+        $policyModel = Policy::getPolicyModel($policyModelName, $authorizeData);
+
+        if ($operator == Permissions::OPERATOR_AND) {
+            if (!app(Gate::class)->forUser($user)->check($permissions, [$policyModel])) {
+                return false;
+            }
+        } elseif ($operator == Permissions::OPERATOR_OR) {
+            if (!app(Gate::class)->forUser($user)->any($permissions, [$policyModel])) {
+                return false;
             }
         }
 
@@ -118,19 +142,17 @@ class AuthService implements AuthInterface
     }
 
     /**
-     * @param string $token
+     * @param string|null $token
      * @return bool
-     *
-     * TODO: move to API service
      */
-    public function isAuthenticated(string $token): bool
+    public function isAuthenticated(?string $token): bool
     {
         if (!$token) {
             return false;
         }
 
         try {
-            $token = $this->decodedToken = $this->jwt::decode($token, $this->getPublicKey(), [env('JWT_ALG')]);
+            $token = $this->decodedToken = $this->decodeToken($token);
         } catch (\Throwable $exception) {
             return false;
         }
@@ -140,6 +162,15 @@ class AuthService implements AuthInterface
         }
 
         return true;
+    }
+
+    /**
+     * @param string $token
+     * @return object
+     */
+    public function decodeToken(string $token)
+    {
+        return $this->jwt::decode($token, $this->getPublicKey(), [env('JWT_ALG')]);
     }
 
     /**
@@ -197,6 +228,14 @@ class AuthService implements AuthInterface
     public function getDecodedToken(): object
     {
         return $this->decodedToken;
+    }
+
+    /**
+     * @return string
+     */
+    private function generateCsrfToken(): string
+    {
+        return str_shuffle('0a1b2c3d4e5f6g7h8i9j');
     }
 
     /**

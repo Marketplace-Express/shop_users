@@ -9,11 +9,22 @@ namespace App\Policies\Role;
 
 
 use App\Models\User;
+use App\Repositories\RoleRepository;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class RolePolicy
 {
     use HandlesAuthorization;
+
+    /**
+     * @var RoleRepository
+     */
+    private $repository;
+
+    public function __construct(RoleRepository $repository)
+    {
+        $this->repository = $repository;
+    }
 
     /**
      * @param User $user
@@ -28,19 +39,42 @@ class RolePolicy
 
     /**
      * @param User $user
+     * @param $roleId
      * @return bool
+     * @throws \App\Exceptions\NotFound
      */
-    public function assignPermissions(User $user): bool
+    public function assignPermissions(User $user, $roleId): bool
     {
-        return $user->roles()->hasPermission('assign-permission');
+        $storeId = $this->repository->getById($roleId)->store_id;
+        return $user->isStoreAdmin($storeId) && $user->roles()->hasPermission('assign-permission');
     }
 
     /**
      * @param User $user
+     * @param Role $role
      * @return bool
      */
-    public function rolesControl(User $user): bool
+    public function viewRole(User $user, Role $role): bool
     {
-        return $user->roles()->hasPermission('roles-control');
+        try {
+            $storeId = $this->repository->getById($role->roleId)->store_id;
+            return $user->isStoreAdmin($storeId) && $user->roles()->hasPermission('roles-control');
+        } catch (\Throwable $exception) {
+            return false;
+        }
+    }
+
+    /**
+     * @param User $user
+     * @param Role $role
+     * @return bool
+     */
+    public function createRole(User $user, Role $role): bool
+    {
+        try {
+            return $user->isStoreAdmin($role->storeId);
+        } catch (\Throwable $exception) {
+            return false;
+        }
     }
 }

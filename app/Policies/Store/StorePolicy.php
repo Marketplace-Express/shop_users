@@ -13,9 +13,11 @@ class StorePolicy
      * @param User $user
      * @return bool
      */
-    public function create(User $user): bool
+    public function boot(User $user)
     {
-        return $user->is_super_admin || $user->roles()->hasPermission('create-store');
+        if ($user->isSuperAdmin()) {
+            return true;
+        }
     }
 
     /**
@@ -25,8 +27,6 @@ class StorePolicy
      */
     public function update(User $user, Store $store): bool
     {
-        return $user->is_super_admin
-            || $user->user_id == $store->owner_id
-            || $user->roles()->hasPermission('edit-store');
+        return $user->user_id == $store->owner_id || $user->roles()->hasPermission('edit-store');
     }
 }

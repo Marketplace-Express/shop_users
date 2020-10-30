@@ -21,8 +21,7 @@ class DeleteRoleRules implements RulesInterface
     public function getRules(): array
     {
         return [
-            'roleId' => ['required', 'uuid'],
-            'storeId' => ['required', 'uuid']
+            'roleId' => ['required', 'uuid']
         ];
     }
 

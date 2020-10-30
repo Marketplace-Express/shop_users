@@ -1,23 +1,23 @@
 <?php
 /**
  * User: Wajdi Jurry
- * Date: 2020/08/29
- * Time: 10:15
+ * Date: 2020/10/30
+ * Time: 16:46
  */
 
 namespace App\Http\Controllers\ValidationRules;
 
 
-class CreateRoleRules implements RulesInterface
+class AssignUnAssignRoleRules implements RulesInterface
 {
     /**
-     * @return array
+     * @return \string[][]
      */
     public function getRules(): array
     {
         return [
-            'role_name' => ['required', 'string', 'min:3', 'max:50'],
-            'store_id' => ['required', 'uuid']
+            'roleId' => ['required', 'uuid'],
+            'user_id' => ['required', 'uuid']
         ];
     }
 

@@ -95,7 +95,7 @@ class AuthService implements AuthInterface
     }
 
     /**
-     * @param string $token
+     * @param array $user
      * @param array $permissions
      * @param string $policyModelName
      * @param string $operator
@@ -103,28 +103,26 @@ class AuthService implements AuthInterface
      * @return bool
      */
     public function isAuthorized(
-        string $token,
+        array $user,
         array $permissions,
         string $policyModelName,
         string $operator = Permissions::OPERATOR_AND,
         array $authorizeData = []
-    ): bool
-    {
-        if (!$this->isAuthenticated($token)) {
+    ): bool {
+
+        if (empty($policyModelName)) {
+            throw new \InvalidArgumentException('policy model is not provided', 400);
+        }
+
+        if (empty($user) || empty($user['user_id'])) {
             return false;
         }
 
-        if (empty($permissions)) {
-            return true;
-        }
+        $user = User::withoutBanned()->firstWhere('user_id', $user['user_id']);
 
-        $userId = @$this->getDecodedToken()->user->user_id;
-
-        if (empty($userId)) {
+        if (!$user) {
             return false;
         }
-
-        $user = User::withoutBanned()->firstWhere('user_id', $userId);
 
         $policyModel = Policy::getPolicyModel($policyModelName, $authorizeData);
 
@@ -227,7 +225,7 @@ class AuthService implements AuthInterface
      */
     public function getDecodedToken(): object
     {
-        return $this->decodedToken;
+        return $this->decodedToken ?? new \stdClass();
     }
 
     /**

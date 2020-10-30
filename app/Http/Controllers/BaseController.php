@@ -37,14 +37,14 @@ class BaseController extends Controller
     {
         $response = null; // initialize response variable
 
-        if ($content instanceof ApiArrayData) {
-            $response = $content->toApiArray();
-        }
-
         if (is_array($content) || $content instanceof Collection) {
             foreach ($content as $key => $item) {
                 $response[$key] = ($item instanceof ApiArrayData) ? $item->toApiArray() : $item;
             }
+        }
+
+        if ($content instanceof ApiArrayData) {
+            $response = $content->toApiArray();
         }
 
         return response()->json([

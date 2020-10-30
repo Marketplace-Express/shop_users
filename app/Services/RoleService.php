@@ -19,20 +19,14 @@ class RoleService
 {
     /** @var RoleRepository */
     private $repository;
-    /**
-     * @var DataGrabberService
-     */
-    private $dataGrabber;
 
     /**
      * RoleService constructor.
      * @param RoleRepository $repository
-     * @param DataGrabberService $dataGrabber
      */
-    public function __construct(RoleRepository $repository, DataGrabberService $dataGrabber)
+    public function __construct(RoleRepository $repository)
     {
         $this->repository = $repository;
-        $this->dataGrabber = $dataGrabber;
     }
 
     /**
@@ -49,12 +43,11 @@ class RoleService
 
     /**
      * @param string $roleId
-     * @param string $storeId
      * @throws \App\Exceptions\NotFound
      */
-    public function delete(string $roleId, string $storeId)
+    public function delete(string $roleId)
     {
-        $this->repository->delete($roleId, $storeId);
+        $this->repository->delete($roleId);
     }
 
     /**
@@ -72,8 +65,52 @@ class RoleService
      * @param string $permission
      * @throws \Throwable
      */
-    public function assign(string $roleId, string $permission)
+    public function assignPermission(string $roleId, string $permission)
     {
-        $this->repository->assign($roleId, $permission);
+        $this->repository->assignPermission($roleId, $permission);
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $permission
+     * @throws \Throwable
+     */
+    public function unAssignPermission(string $roleId, string $permission)
+    {
+        $this->repository->unAssignPermission($roleId, $permission);
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $roleName
+     * @return \App\Models\Role
+     * @throws NotFound
+     * @throws \App\Exceptions\DuplicationExist
+     */
+    public function update(string $roleId, string $roleName)
+    {
+        return $this->repository->update($roleId, $roleName);
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $userId
+     * @return \App\Models\Role
+     * @throws NotFound
+     * @throws \App\Exceptions\DuplicationExist
+     */
+    public function assignRole(string $roleId, string $userId)
+    {
+        return $this->repository->assignRole($roleId, $userId);
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $userId
+     * @throws NotFound
+     */
+    public function unAssignRole(string $roleId, string $userId)
+    {
+        $this->repository->unAssignRole($roleId, $userId);
     }
 }

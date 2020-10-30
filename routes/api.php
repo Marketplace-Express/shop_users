@@ -26,10 +26,14 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->post('/user/login', 'UserController@login');
 
     // RoleController
+    $router->put('/role/{roleId}/permission', 'RoleController@assignPermission');
+    $router->delete('/role/{roleId}/permission', 'RoleController@unAssignPermission');
+    $router->post('/role/{roleId}/user', 'RoleController@assignRole');
+    $router->delete('/role/{roleId}/user', 'RoleController@unAssignRole');
     $router->get('/role/{roleId}', 'RoleController@get');
     $router->post('/role/create', 'RoleController@create');
     $router->delete('/role/{roleId}', 'RoleController@delete');
-    $router->put('/role/permission', 'RoleController@assign');
+    $router->put('/role/{roleId}', 'RoleController@update');
 
     // AuthController
     $router->post('/auth/authenticated', 'AuthController@authenticated');

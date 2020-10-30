@@ -13,13 +13,17 @@ namespace App\Policies\Store;
  *
  * @property $storeId
  * @property $ownerId
+ * @property $storeOwner
  */
 class Store
 {
-
     public function __get($attribute)
     {
-        return $this->{$attribute};
+        if (property_exists($this, $attribute)) {
+            return $this->{$attribute};
+        }
+
+        return null;
     }
 
     public function __set($attribute, $value)

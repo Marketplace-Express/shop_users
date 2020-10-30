@@ -3,21 +3,34 @@
 namespace App\Policies\Store;
 
 use App\Models\User;
-use Illuminate\Auth\Access\HandlesAuthorization;
+use App\Policies\AbstractPolicy;
 
-class StorePolicy
+class StorePolicy extends AbstractPolicy
 {
-    use HandlesAuthorization;
+    /**
+     * @param User $user
+     * @param $permission
+     * @param Store $store
+     * @return bool
+     */
+    public function before(User $user, $permission, Store $store)
+    {
+        if ($user->isSuperAdmin() || $store->storeOwner) {
+            return true;
+        }
+
+        if (!$this->isStoreAdmin($user, $store->storeId)) {
+            return false;
+        }
+    }
 
     /**
      * @param User $user
      * @return bool
      */
-    public function boot(User $user)
+    public function updateStore(User $user): bool
     {
-        if ($user->isSuperAdmin()) {
-            return true;
-        }
+        return $user->roles()->hasPermission('edit-store');
     }
 
     /**
@@ -25,8 +38,17 @@ class StorePolicy
      * @param Store $store
      * @return bool
      */
-    public function update(User $user, Store $store): bool
+    public function deleteStore(User $user, Store $store): bool
     {
-        return $user->user_id == $store->owner_id || $user->roles()->hasPermission('edit-store');
+        return (bool) $store->storeOwner;
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function listFollowers(User $user): bool
+    {
+        return $user->roles()->hasPermission('list-followers');
     }
 }

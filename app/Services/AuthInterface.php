@@ -20,10 +20,10 @@ interface AuthInterface
     public function authenticate(string $identifier, string $password): Token;
 
     /**
-     * @param string $token
+     * @param array $user
      * @param array $permissions
      * @param string $policyModelName
      * @return bool
      */
-    public function isAuthorized(string $token, array $permissions, string $policyModelName): bool;
+    public function isAuthorized(array $user, array $permissions, string $policyModelName): bool;
 }

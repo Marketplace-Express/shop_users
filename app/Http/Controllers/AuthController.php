@@ -35,9 +35,11 @@ class AuthController extends BaseController
     public function authenticated(Request $request)
     {
         try {
-            $response = $this->prepareResponse(
-                $this->service->isAuthenticated($request->get('token'))
-            );
+            $authData = [
+                'is_authenticated' => $this->service->isAuthenticated($request->get('token')),
+                'user' => @$this->service->getDecodedToken()->user
+            ];
+            $response = $this->prepareResponse($authData);
         } catch (\Throwable $exception) {
             $response = $this->prepareResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -53,7 +55,7 @@ class AuthController extends BaseController
     {
         try {
             $isAuthorized = $this->service->isAuthorized(
-                $request->get('token'),
+                $request->get('user'),
                 $request->get('permissions'),
                 $request->get('policyModel'),
                 $request->get('operator'),

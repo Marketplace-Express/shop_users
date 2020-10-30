@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+
+use App\Exceptions\RoleUsed;
 use App\Models\Collections\RolesCollection;
 use App\Models\Interfaces\ApiArrayData;
 use Illuminate\Database\Eloquent\Model;
@@ -24,22 +26,24 @@ class Role extends Model implements ApiArrayData
         'role_id', 'role_name', 'store_id'
     ];
 
-    protected static function boot()
+    public static function boot()
     {
         parent::boot();
         static::deleting(function ($model) {
+            if ($model->users()->count()) {
+                throw new RoleUsed();
+            }
+
+            $model->permissions()->delete(); // delete all permissions assigned to this role
             $model->deleted_at = new \DateTime();
             $model->deletion_token = Uuid::uuid4()->toString();
             $model->save();
-            return false;
         });
     }
 
-    public function user()
+    public function users()
     {
-        return $this->belongsToMany(Role::class)->using(UserRole::class)->withPivot([
-            'user_id', 'role_id'
-        ]);
+        return $this->hasMany(UserRole::class, 'role_id', 'role_id');
     }
 
     /**
@@ -47,7 +51,7 @@ class Role extends Model implements ApiArrayData
      */
     public function permissions()
     {
-        return $this->hasMany(RolePermission::class, 'role_id', 'role_id')->getResults();
+        return $this->hasMany(RolePermission::class, 'role_id', 'role_id');
     }
 
     /**

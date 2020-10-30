@@ -13,17 +13,21 @@ namespace App\Policies\Role;
  *
  * @property $roleId
  * @property $storeId
+ * @property $storeOwner
  */
 class Role
 {
+    public function __get($attribute)
+    {
+        if (property_exists($this, $attribute)) {
+            return $this->{$attribute};
+        }
+
+        return null;
+    }
 
     public function __set($attribute, $value)
     {
         $this->{$attribute} = $value;
-    }
-
-    public function __get($attribute)
-    {
-        return $this->{$attribute};
     }
 }

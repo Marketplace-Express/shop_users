@@ -12,6 +12,8 @@ use App\Exceptions\DuplicationExist;
 use App\Exceptions\NotFound;
 use App\Models\Role;
 use App\Models\RolePermission;
+use App\Models\User;
+use App\Models\UserRole;
 use Illuminate\Database\QueryException;
 use Ramsey\Uuid\Uuid;
 
@@ -72,14 +74,11 @@ class RoleRepository
 
     /**
      * @param string $roleId
-     * @param string $storeId
      * @throws NotFound
      */
-    public function delete(string $roleId, string $storeId)
+    public function delete(string $roleId)
     {
-        $role = Role::where('role_id', $roleId)
-            ->where('store_id', $storeId)
-            ->first();
+        $role = Role::firstWhere('role_id', $roleId);
 
         if (!$role) {
             throw new NotFound('role not found or maybe deleted');
@@ -121,7 +120,7 @@ class RoleRepository
      * @param string $permission
      * @throws \Throwable
      */
-    public function assign(string $roleId, string $permission)
+    public function assignPermission(string $roleId, string $permission)
     {
         $permission = new RolePermission([
             'role_id' => $roleId,
@@ -129,5 +128,64 @@ class RoleRepository
         ]);
 
         $permission->saveOrFail();
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $permission
+     * @throws \Throwable
+     */
+    public function unAssignPermission(string $roleId, string $permission)
+    {
+        $permission = RolePermission::firstWhere([
+            'role_id' => $roleId,
+            'permission_key' => $permission
+        ]);
+
+        if (!$permission) {
+            throw new NotFound('permission is not assigned to role');
+        }
+
+        $permission->delete();
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $userId
+     * @return Role
+     * @throws DuplicationExist
+     * @throws NotFound
+     */
+    public function assignRole(string $roleId, string $userId): Role
+    {
+        /** @var User $user */
+        $user = User::firstWhere('user_id', $userId);
+
+        if (!$user) {
+            throw new NotFound('user not found or maybe deleted');
+        }
+
+        $role = $this->getById($roleId);
+        $user->addRole($role);
+
+        return $role;
+    }
+
+    /**
+     * @param string $roleId
+     * @param string $userId
+     * @throws NotFound
+     */
+    public function unAssignRole(string $roleId, string $userId)
+    {
+        /** @var User $user */
+        $user = User::firstWhere('user_id', $userId);
+
+        if (!$user) {
+            throw new NotFound('user not found or maybe deleted');
+        }
+
+        $role = $this->getById($roleId);
+        $user->removeRole($role);
     }
 }

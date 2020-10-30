@@ -9,13 +9,11 @@ namespace App\Policies\Role;
 
 
 use App\Models\User;
+use App\Policies\AbstractPolicy;
 use App\Repositories\RoleRepository;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
-class RolePolicy
+class RolePolicy extends AbstractPolicy
 {
-    use HandlesAuthorization;
-
     /**
      * @var RoleRepository
      */
@@ -28,53 +26,90 @@ class RolePolicy
 
     /**
      * @param User $user
+     * @param $permission
+     * @param Role $role
      * @return bool|null
      */
-    public function before(User $user)
+    public function before(User $user, $permission, Role $role)
     {
-        if ($user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() || $role->storeOwner) {
             return true;
         }
-    }
 
-    /**
-     * @param User $user
-     * @param $roleId
-     * @return bool
-     * @throws \App\Exceptions\NotFound
-     */
-    public function assignPermissions(User $user, $roleId): bool
-    {
-        $storeId = $this->repository->getById($roleId)->store_id;
-        return $user->isStoreAdmin($storeId) && $user->roles()->hasPermission('assign-permission');
-    }
-
-    /**
-     * @param User $user
-     * @param Role $role
-     * @return bool
-     */
-    public function viewRole(User $user, Role $role): bool
-    {
-        try {
-            $storeId = $this->repository->getById($role->roleId)->store_id;
-            return $user->isStoreAdmin($storeId) && $user->roles()->hasPermission('roles-control');
-        } catch (\Throwable $exception) {
+        if (!$this->isStoreAdmin($user, $role->storeId)) {
             return false;
         }
     }
 
     /**
      * @param User $user
-     * @param Role $role
      * @return bool
      */
-    public function createRole(User $user, Role $role): bool
+    public function assignPermissions(User $user): bool
     {
-        try {
-            return $user->isStoreAdmin($role->storeId);
-        } catch (\Throwable $exception) {
-            return false;
-        }
+        return $user->roles()->hasPermission('assign-permission');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function unAssignPermission(User $user): bool
+    {
+        return $user->roles()->hasPermission('unassign-permission');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function viewRole(User $user): bool
+    {
+        return $user->roles()->hasPermission('roles-control');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function createRole(User $user): bool
+    {
+        return $user->roles()->hasPermission('create-role');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function deleteRole(User $user): bool
+    {
+        return $user->roles()->hasPermission('delete-role');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function updateRole(User $user): bool
+    {
+        return $user->roles()->hasPermission('update-role');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function assignRole(User $user): bool
+    {
+        return $user->roles()->hasPermission('assign-role');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function unAssignRole(User $user): bool
+    {
+        return $user->roles()->hasPermission('unassign-role');
     }
 }

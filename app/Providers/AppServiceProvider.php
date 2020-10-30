@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Http\Requests\AssignUnAssignRoleRequest;
+use App\Http\Requests\PermissionRequest;
 use App\Http\Requests\BanUserRequest;
 use App\Http\Requests\DeleteRolesRequest;
+use App\Http\Requests\UpdateRoleRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
@@ -27,6 +30,15 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->resolving(DeleteRolesRequest::class, function ($request, $app) {
             DeleteRolesRequest::createFrom($app['request'], $request);
+        });
+        $this->app->resolving(UpdateRoleRequest::class, function ($request, $app) {
+            UpdateRoleRequest::createFrom($app['request'], $request);
+        });
+        $this->app->resolving(PermissionRequest::class, function ($request, $app) {
+            PermissionRequest::createFrom($app['request'], $request);
+        });
+        $this->app->resolving(AssignUnAssignRoleRequest::class, function ($request, $app) {
+            AssignUnAssignRoleRequest::createFrom($app['request'], $request);
         });
     }
 

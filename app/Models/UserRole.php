@@ -9,6 +9,8 @@ class UserRole extends Pivot
 {
     protected $table = 'user_roles';
 
+    public $timestamps = false;
+
     public $fillable = [
         'user_id', 'role_id'
     ];

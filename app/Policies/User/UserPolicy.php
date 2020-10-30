@@ -9,13 +9,12 @@ namespace App\Policies\User;
 
 
 use App\Models\User;
+use App\Policies\AbstractPolicy;
+use App\Policies\User\User as UserPolicyModel;
 use App\Repositories\UserRepository;
-use Illuminate\Auth\Access\HandlesAuthorization;
 
-class UserPolicy
+class UserPolicy extends AbstractPolicy
 {
-    use HandlesAuthorization;
-
     /**
      * @var UserRepository
      */
@@ -26,10 +25,20 @@ class UserPolicy
         $this->repository = $repository;
     }
 
-    public function before(User $user)
+    /**
+     * @param User $user
+     * @param $permission
+     * @param \App\Policies\User\User $userPolicyModel
+     * @return bool
+     */
+    public function before(User $user, $permission, UserPolicyModel $userPolicyModel)
     {
-        if ($user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() || $userPolicyModel->storeOwner) {
             return true;
+        }
+
+        if (!$this->isStoreAdmin($user, $userPolicyModel->storeId)) {
+            return false;
         }
     }
 
@@ -38,13 +47,8 @@ class UserPolicy
         return false;
     }
 
-    public function banUser(User $user): bool
-    {
-        return false;
-    }
-
     public function removeAsAdmin(User $user, $storeId): bool
     {
-        return $user->isStoreAdmin($storeId) && $user->roles()->hasPermission("remove-as-admin");
+        return $user->isStoreAdmin($storeId) && $user->roles()->hasPermission('remove-as-admin');
     }
 }

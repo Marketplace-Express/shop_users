@@ -19,7 +19,7 @@ class RolesCollection extends Collection
     public function hasPermission(string $permissionKey): bool
     {
         foreach ($this->items as $role) {
-            foreach ($role->permissions() as $permission) {
+            foreach ($role->permissions()->getResults() as $permission) {
                 if ($permission->permission_key == $permissionKey) {
                     return true;
                 }

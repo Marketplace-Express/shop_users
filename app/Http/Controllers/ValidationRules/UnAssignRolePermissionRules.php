@@ -1,8 +1,8 @@
 <?php
 /**
  * User: Wajdi Jurry
- * Date: 2020/09/09
- * Time: 21:47
+ * Date: 2020/10/28
+ * Time: 23:39
  */
 
 namespace App\Http\Controllers\ValidationRules;
@@ -12,9 +12,8 @@ use App\Enums\PermissionsEnum;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
-class AssignRolePermissionRules implements RulesInterface
+class UnAssignRolePermissionRules implements RulesInterface
 {
-
     /**
      * @var Request
      */
@@ -39,7 +38,7 @@ class AssignRolePermissionRules implements RulesInterface
             'permission' => [
                 'required',
                 Rule::in(PermissionsEnum::getValues()),
-                Rule::unique('role_permissions', 'permission_key')->where(function ($query) {
+                Rule::exists('role_permissions', 'permission_key')->where(function ($query) {
                     return $query->where('role_id', $this->request->route('roleId'));
                 })
             ]
@@ -52,7 +51,7 @@ class AssignRolePermissionRules implements RulesInterface
     public function getMessages(): array
     {
         return [
-            'permission.unique' => 'The permission has already been assigned'
+            'permission.exists' => 'permission is not assigned to role'
         ];
     }
 }

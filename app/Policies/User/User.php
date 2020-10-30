@@ -12,13 +12,18 @@ namespace App\Policies\User;
  * @package App\Policies\User
  *
  * @property $userId
+ * @property $storeId
+ * @property $storeOwner
  */
 class User
 {
-
     public function __get($attribute)
     {
-        return $this->{$attribute};
+        if (property_exists($this, $attribute)) {
+            return $this->{$attribute};
+        }
+
+        return null;
     }
 
     public function __set($attribute, $value)

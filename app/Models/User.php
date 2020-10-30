@@ -8,6 +8,8 @@
 namespace App\Models;
 
 
+use App\Exceptions\DuplicationExist;
+use App\Exceptions\NotFound;
 use App\Models\Collections\RolesCollection;
 use App\Models\Interfaces\ApiArrayData;
 use App\Models\Interfaces\TokenArrayDataInterface;
@@ -17,6 +19,7 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\QueryException;
 use Laravel\Lumen\Auth\Authorizable;
 use Ramsey\Uuid\Uuid;
 
@@ -113,6 +116,35 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
+     * @param Role $role
+     * @throws DuplicationExist
+     * @throws \Throwable
+     */
+    public function addRole(Role $role)
+    {
+        $userRole = new UserRole(['role_id' => $role->role_id, 'user_id' => $this->user_id]);
+        try {
+            $userRole->saveOrFail();
+        } catch (QueryException $exception) {
+            if ($exception->getCode() == "23000") {
+                throw new DuplicationExist('role already assined');
+            }
+            throw $exception;
+        }
+    }
+
+    /**
+     * @param Role $role
+     */
+    public function removeRole(Role $role)
+    {
+        UserRole::query()
+            ->where('user_id', $this->user_id)
+            ->where('role_id', $role->role_id)
+            ->delete();
+    }
+
+    /**
      * @return bool
      */
     public function isBanned(): bool
@@ -166,10 +198,14 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function toTokenArrayData(): array
     {
+        $userRoles = $this->roles()->all();
+        $storesIds = array_column($userRoles, 'store_id');
+
         return [
             'user_id' => $this->getAuthIdentifier(),
             'email' => $this->email,
-            'user_name' => $this->user_name
+            'user_name' => $this->user_name,
+            'admin_on_stores' => $storesIds
         ];
     }
 }

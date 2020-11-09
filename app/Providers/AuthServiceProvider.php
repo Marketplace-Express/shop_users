@@ -20,6 +20,7 @@ class AuthServiceProvider extends ServiceProvider
         'App\Policies\Store\Store' => 'App\Policies\Store\StorePolicy',
         'App\Policies\Role\Role' => 'App\Policies\Role\RolePolicy',
         'App\Policies\User\User' => 'App\Policies\User\UserPolicy',
+        'App\Policies\Category\Category' => 'App\Policies\Category\CategoryPolicy'
     ];
 
     public function boot()

@@ -22,4 +22,17 @@ class BanUserReasonsEnum
             self::USER_BAN_OTHER_REASON
         ];
     }
+
+    public static function getKeys(): array
+    {
+        return array_keys(
+            (new \ReflectionClass(self::class))->getConstants()
+        );
+    }
+
+    public static function getKey($value)
+    {
+        $constants = array_flip((new \ReflectionClass(self::class))->getConstants());
+        return array_key_exists($value, $constants) ? $constants[$value] : null;
+    }
 }

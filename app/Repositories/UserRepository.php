@@ -8,10 +8,12 @@
 namespace App\Repositories;
 
 
+use App\Enums\BanUserReasonsEnum;
 use App\Exceptions\DuplicationExist;
 use App\Exceptions\NotFound;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
+use App\Models\BannedUser;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;
@@ -113,6 +115,15 @@ class UserRepository
     }
 
     /**
+     * @param array $usersIds
+     * @return array
+     */
+    public function getByIds(array $usersIds): array
+    {
+        return User::query()->findMany($usersIds)->all();
+    }
+
+    /**
      * @param string $userId
      * @throws NotFound
      */
@@ -193,6 +204,15 @@ class UserRepository
      */
     public function getBanned(int $page = 1, int $limit = 10): array
     {
-        return User::onlyBanned()->paginate($limit, '*', 'page', $page)->items();
+        $bannedUsers = User::onlyBanned()->paginate($limit, '*', 'page', $page)->items();
+
+        return array_map(function ($user) {
+            $banInfo = BannedUser::firstWhere('user_id', $user->user_id);
+            return [
+                'reason' => BanUserReasonsEnum::getKey($banInfo->reason),
+                'description' => $banInfo->description,
+                'user' => $user
+            ];
+        }, $bannedUsers);
     }
 }

@@ -38,9 +38,9 @@ class BaseController extends Controller
         $response = null; // initialize response variable
 
         if (is_array($content) || $content instanceof Collection) {
-            foreach ($content as $key => $item) {
-                $response[$key] = ($item instanceof ApiArrayData) ? $item->toApiArray() : $item;
-            }
+            array_walk_recursive($content, function (&$value) {
+                $value = ($value instanceof ApiArrayData) ? $value->toApiArray() : $value;
+            });
         }
 
         if ($content instanceof ApiArrayData) {

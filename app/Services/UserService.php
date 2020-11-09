@@ -110,4 +110,13 @@ class UserService
     {
         return $this->repository->getBanned($page, $limit);
     }
+
+    /**
+     * @param array $usersIds
+     * @return array
+     */
+    public function getByIds(array $usersIds): array
+    {
+        return $this->repository->getByIds($usersIds);
+    }
 }

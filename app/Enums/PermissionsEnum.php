@@ -21,6 +21,14 @@ class PermissionsEnum
     const ASSIGN_ROLE_PERMISSION = 'assign-role';
     const UNASSIGN_ROLE_PERMISSION = 'unassign-role';
     const LIST_FOLLOWERS_PERMISSION = 'list-followers';
+    const CREATE_CATEGORY_PERMISSION = 'create-category';
+    const UPDATE_CATEGORY_PERMISSION = 'update-category';
+    const DELETE_CATEGORY_PERMISSION = 'delete-category';
+    const LIST_PRODUCTS_PERMISSION = 'list-products';
+    const VIEW_PRODUCT_PERMISSION = 'view-product';
+    const CREATE_PRODUCT_PERMISSION = 'create-product';
+    const UPDATE_PRODUCT_PERMISSION = 'update-product';
+    const DELETE_PRODUCT_PERMISSION = 'delete-product';
 
     /**
      * @return string[]
@@ -38,7 +46,15 @@ class PermissionsEnum
             self::UPDATE_ROLE_PERMISSION,
             self::ASSIGN_ROLE_PERMISSION,
             self::UNASSIGN_ROLE_PERMISSION,
-            self::LIST_FOLLOWERS_PERMISSION
+            self::LIST_FOLLOWERS_PERMISSION,
+            self::CREATE_CATEGORY_PERMISSION,
+            self::UPDATE_CATEGORY_PERMISSION,
+            self::DELETE_CATEGORY_PERMISSION,
+            self::LIST_PRODUCTS_PERMISSION,
+            self::VIEW_PRODUCT_PERMISSION,
+            self::CREATE_PRODUCT_PERMISSION,
+            self::UPDATE_PRODUCT_PERMISSION,
+            self::DELETE_PRODUCT_PERMISSION
         ];
     }
 }

@@ -32,4 +32,22 @@ class CategoryPolicy extends AbstractPolicy
     {
         return $user->roles()->hasPermission('create-category');
     }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function updateCategory(User $user): bool
+    {
+        return $user->roles()->hasPermission('update-category');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function deleteCategory(User $user): bool
+    {
+        return $user->roles()->hasPermission('delete-category');
+    }
 }

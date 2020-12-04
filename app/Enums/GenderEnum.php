@@ -12,14 +12,14 @@ class GenderEnum
 {
     const GENDER_MALE = 'male';
     const GENDER_FEMALE = 'female';
-    const GENDER_ALL = 'all';
+    const GENDER_NONE = 'none';
 
     public static function getValues(): array
     {
         return [
             self::GENDER_MALE,
             self::GENDER_FEMALE,
-            self::GENDER_ALL
+            self::GENDER_NONE
         ];
     }
 
@@ -27,7 +27,8 @@ class GenderEnum
     {
         return [
             self::GENDER_MALE,
-            self::GENDER_FEMALE
+            self::GENDER_FEMALE,
+            self::GENDER_NONE
         ];
     }
 }

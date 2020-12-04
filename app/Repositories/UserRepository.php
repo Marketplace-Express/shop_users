@@ -47,6 +47,8 @@ class UserRepository
         } catch (QueryException $exception) {
             if ($exception->getCode() == 23000) {
                 throw new DuplicationExist('user already exists');
+            } else {
+                throw $exception;
             }
         }
 

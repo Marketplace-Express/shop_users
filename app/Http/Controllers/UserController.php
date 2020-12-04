@@ -15,7 +15,7 @@ use App\Exceptions\OperationNotPermitted;
 use App\Http\Controllers\Annotations\Permissions;
 use App\Http\Controllers\Interfaces\Authorizable;
 use App\Http\Controllers\ValidationRules\GetBannedUsersRules;
-use App\Http\Controllers\ValidationRules\GetByIdsRules;
+use App\Http\Controllers\ValidationRules\GetUsersByIdsRules;
 use App\Http\Controllers\ValidationRules\RestoreUserRules;
 use App\Http\Requests\BanUserRequest;
 use App\Http\Controllers\ValidationRules\BanUserRules;
@@ -59,6 +59,7 @@ class UserController extends BaseController implements Authorizable
         try {
             $this->validation($request, new RegisterUserRules());
             $user = $this->service->create(json_decode($request->getContent(), true));
+            $user = $this->service->loginByUsernameOrEmail($user->email, $request->get('password'));
             $response = $this->prepareResponse($user);
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->validator->errors(), Response::HTTP_BAD_REQUEST);
@@ -212,7 +213,7 @@ class UserController extends BaseController implements Authorizable
     public function getByIds(Request $request)
     {
         try {
-            $this->validation($request, new GetByIdsRules());
+            $this->validation($request, new GetUsersByIdsRules());
             $response = $this->prepareResponse($this->service->getByIds($request->get('usersIds')));
         } catch (ValidationException $exception) {
             $response = $this->prepareResponse($exception->errors(), Response::HTTP_BAD_REQUEST);

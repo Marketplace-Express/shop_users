@@ -8,7 +8,7 @@
 namespace App\Http\Controllers\ValidationRules;
 
 
-class GetByIdsRules implements RulesInterface
+class GetUsersByIdsRules implements RulesInterface
 {
     /**
      * @return \string[][]

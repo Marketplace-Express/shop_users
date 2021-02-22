@@ -8,24 +8,19 @@
 namespace App\Services;
 
 
-use App\Exceptions\DuplicationExist;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
 use App\Http\Controllers\Annotations\Permissions;
-use App\Models\Interfaces\TokenArrayDataInterface;
 use App\Models\Token;
 use App\Models\User;
 use App\Policies\Policy;
 use App\Repositories\UserRepository;
-use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
 use Illuminate\Contracts\Auth\Access\Gate;
-use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Auth;
 
 /**
- * Class AuthServiceProvider
- * @package App\Providers\Auth
+ * Class AuthService
+ * @package App\Services
  */
 class AuthService implements AuthInterface
 {

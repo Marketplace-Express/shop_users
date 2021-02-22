@@ -29,6 +29,10 @@ class PermissionsEnum
     const CREATE_PRODUCT_PERMISSION = 'create-product';
     const UPDATE_PRODUCT_PERMISSION = 'update-product';
     const DELETE_PRODUCT_PERMISSION = 'delete-product';
+    const UPDATE_PRODUCT_QUANTITY_PERMISSION = 'update-product-quantity';
+    const CREATE_PRODUCT_VARIATION_PERMISSION = 'create-product-variation';
+    const UPDATE_PRODUCT_VARIATION_PERMISSION = 'update-product-variation';
+    const DELETE_PRODUCT_VARIATION_PERMISSION = 'delete-product-variation';
 
     /**
      * @return string[]
@@ -54,7 +58,11 @@ class PermissionsEnum
             self::VIEW_PRODUCT_PERMISSION,
             self::CREATE_PRODUCT_PERMISSION,
             self::UPDATE_PRODUCT_PERMISSION,
-            self::DELETE_PRODUCT_PERMISSION
+            self::DELETE_PRODUCT_PERMISSION,
+            self::UPDATE_PRODUCT_QUANTITY_PERMISSION,
+            self::CREATE_PRODUCT_VARIATION_PERMISSION,
+            self::UPDATE_PRODUCT_VARIATION_PERMISSION,
+            self::DELETE_PRODUCT_VARIATION_PERMISSION,
         ];
     }
 }

@@ -33,7 +33,7 @@ class UserRepository
         $user->user_id = Uuid::uuid4()->toString();
         $user->first_name = $data['first_name'];
         $user->last_name = $data['last_name'];
-        $user->email = $data['email'];
+        $user->email = strtolower($data['email']);
         $user->gender = $data['gender'];
         $user->birthdate = $data['birthdate'];
         $user->password = Hash::make($data['password']);

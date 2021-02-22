@@ -68,4 +68,40 @@ class ProductPolicy extends AbstractPolicy
     {
         return $user->roles()->hasPermission('delete-product');
     }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function updateProductQuantity(User $user): bool
+    {
+        return $user->roles()->hasPermission('update-product-quantity');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function createProductVariation(User $user): bool
+    {
+        return $user->roles()->hasPermission('create-product-variation');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function updateProductVariation(User $user): bool
+    {
+        return $user->roles()->hasPermission('update-product-variation');
+    }
+
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public function deleteProductVariation(User $user): bool
+    {
+        return $user->roles()->hasPermission('delete-product-variation');
+    }
 }

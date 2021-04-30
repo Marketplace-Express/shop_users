@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateRolePermissionsTable extends Migration
 {
+    const TABLE_NAME = 'role_permissions';
+
     /**
      * Run the migrations.
      *
@@ -14,7 +16,7 @@ class CreateRolePermissionsTable extends Migration
      */
     public function up()
     {
-        Schema::create('role_permissions', function (Blueprint $table) {
+        Schema::create(self::TABLE_NAME, function (Blueprint $table) {
             $table->id();
             $table->string('permission_key');
             $table->uuid('role_id');
@@ -29,6 +31,6 @@ class CreateRolePermissionsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('role_permissions');
+        Schema::dropIfExists(self::TABLE_NAME);
     }
 }

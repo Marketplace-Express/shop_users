@@ -8,7 +8,7 @@
         "ext-json": "*",
         "doctrine/annotations": "^1.10",
         "firebase/php-jwt": "^5.2",
-        "jurry/laravel-rabbitmq": "^1.1",
+        "jurry/laravel-rabbitmq": "v1.2.x-dev",
         "laravel/lumen-framework": "^7.0",
         "laravelista/lumen-vendor-publish": "^7.0"
     },
@@ -41,7 +41,10 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "scripts": {
-        "post-root-package-install": [
+        "pre-install-cmd": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "pre-update-cmd": [
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
         ]
     }

@@ -24,7 +24,7 @@ class RegisterUserRules implements RulesInterface
             'email' => ['required', 'email:filter,spoof'],
             'gender' => ['required', Rule::in(GenderEnum::getValues())],
             'birthdate' => ['required', 'date_format:Y-m-d'],
-            'password' => ['required'],
+            'password' => ['required', 'min:6'],
         ];
     }
 

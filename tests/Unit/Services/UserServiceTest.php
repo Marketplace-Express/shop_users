@@ -5,7 +5,6 @@ namespace Tests\Unit\Services;
 use App\Repositories\UserRepository;
 use App\Services\AuthService;
 use App\Services\UserService;
-use Laravel\Lumen\Testing\DatabaseTransactions;
 use PHPUnit\Framework\TestCase;
 
 class UserServiceTest extends TestCase

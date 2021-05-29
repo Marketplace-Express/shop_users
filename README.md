@@ -9,7 +9,7 @@ This service handles users functionality, including CRUDs, processing and handli
 
 1. Clone the repository:
 ```shell script
-git clone git@gitlab.com:shop_ecommerce/shop_users.git
+git clone git@github.com:Marketplace-Express/shop_users.git
 ```
 
 2- Rename the file “.env.example” under “/” to “.env” then change the parameters to match your preferences, example:

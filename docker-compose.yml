@@ -43,6 +43,7 @@ services:
       - /src/vendor
     environment:
       - PHP_IDE_CONFIG=serverName=docker
+      - UNIT_TEST=1
 
 networks:
   default:

@@ -10,8 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 class UserServiceTest extends TestCase
 {
-    use DatabaseTransactions;
-
     /**
      * @param ...$methods
      * @return UserService|\PHPUnit\Framework\MockObject\MockObject

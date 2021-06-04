@@ -64,7 +64,7 @@ jobs:
 
             - name: Replace environment variables
               run: |
-                  sed -i 's/DB_HOST.*/DB_HOST=${{ steps.github-network.outputs.gateway-address }}/g' .env
+                  sed -i 's/DB_HOST.*/DB_HOST=${{ steps.github-network.outputs.gateway-address }}/g' .env.testing
                   sed -i 's/DB_PORT.*/DB_PORT=${{ job.services.mysql.ports[3306] }}/g' .env.testing
                   sed -i 's/DB_USERNAME.*/DB_USERNAME=${{ env.MYSQL_TEST_USER }}/g' .env.testing
                   sed -i 's/DB_PASSWORD.*/DB_PASSWORD=${{ env.MYSQL_TEST_PASSWORD }}/g' .env.testing

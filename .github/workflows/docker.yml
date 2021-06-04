@@ -79,14 +79,14 @@ jobs:
                   sed -i 's/DB_USERNAME.*/DB_USERNAME=${{ env.MYSQL_TEST_USER }}/g' .env.testing
                   sed -i 's/DB_PASSWORD.*/DB_PASSWORD=${{ env.MYSQL_TEST_PASSWORD }}/g' .env.testing
                   sed -i 's/DB_DATABASE.*/DB_DATABASE=${{ env.MYSQL_TEST_DB }}/g' .env.testing
-                  sed -i 's/JURRY_RABBITMQ_HOST.*/JURRY_RABBITMQ_HOST=${{ steps.github-network.outputs.gateway-address }}/g' .env.testing
-                  sed -i 's/JURRY_RABBITMQ_PORT.*/JURRY_RABBITMQ_PORT=${{ job.services.rabbitmq.ports[5672] }}/g' .env.testing
-                  sed -i 's/JURRY_RABBITMQ_USERNAME.*/JURRY_RABBITMQ_USERNAME=${{ env.RABBITMQ_USERNAME }}/g' .env.testing
-                  sed -i 's/JURRY_RABBITMQ_PASSWORD.*/JURRY_RABBITMQ_PASSWORD=${{ env.RABBITMQ_PASSWORD }}/g' .env.testing
+                  sed -i 's/JURRY_RABBITMQ_HOST.*/JURRY_RABBITMQ_HOST=${{ steps.github-network.outputs.gateway-address }}/g' .env
+                  sed -i 's/JURRY_RABBITMQ_PORT.*/JURRY_RABBITMQ_PORT=${{ job.services.rabbitmq.ports[5672] }}/g' .env
+                  sed -i 's/JURRY_RABBITMQ_USERNAME.*/JURRY_RABBITMQ_USERNAME=${{ env.RABBITMQ_USERNAME }}/g' .env
+                  sed -i 's/JURRY_RABBITMQ_PASSWORD.*/JURRY_RABBITMQ_PASSWORD=${{ env.RABBITMQ_PASSWORD }}/g' .env
 
             - name: Debugging
               run: cat .env.testing
-              
+
             - name: Build docker image
               run: docker build -t marketplace_shop_users .
 

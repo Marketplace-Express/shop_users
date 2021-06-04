@@ -84,6 +84,9 @@ jobs:
                   sed -i 's/JURRY_RABBITMQ_USERNAME.*/JURRY_RABBITMQ_USERNAME=${{ env.RABBITMQ_USERNAME }}/g' .env.testing
                   sed -i 's/JURRY_RABBITMQ_PASSWORD.*/JURRY_RABBITMQ_PASSWORD=${{ env.RABBITMQ_PASSWORD }}/g' .env.testing
 
+            - name: Debugging
+              run: cat .env.testing
+              
             - name: Build docker image
               run: docker build -t marketplace_shop_users .
 

@@ -37,7 +37,7 @@ services:
 
   users-unit-test:
     image: marketplace_shop_users
-    command: bash -c "php artisan migrate -q -n | php vendor/bin/phpunit --configuration=phpunit.xml"
+    command: php vendor/bin/phpunit --configuration=phpunit.xml
     volumes:
       - .:/src
       - /src/vendor

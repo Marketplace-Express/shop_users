@@ -59,7 +59,6 @@ class UserController extends BaseController implements Authorizable
         try {
             $this->validation($request, new RegisterUserRules());
             $user = $this->service->create(json_decode($request->getContent(), true));
-            return $this->prepareResponse($user);
             $user = $this->service->loginByUsernameOrEmail($user->email, $request->get('password'));
             $response = $this->prepareResponse($user);
         } catch (ValidationException $exception) {

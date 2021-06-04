@@ -26,8 +26,6 @@ class UserControllerTest extends TestCase
             'password' => '12345678',
         ]);
 
-        var_dump($response->response->content());
-
         $response->assertResponseOk();
 
         $responseText = $response->response->content();

@@ -40,8 +40,6 @@ class UserRepository
         $this->generateUserName($user);
         $this->calculateAge($user);
 
-        return $user->getConnection()->getConfig();
-
         try {
             if (!$user->save()) {
                 throw new OperationFailed('failed to save user');

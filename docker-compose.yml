@@ -44,6 +44,8 @@ services:
     environment:
       - PHP_IDE_CONFIG=serverName=docker
       - UNIT_TEST=1
+    env_file:
+      - .env.testing
 
 networks:
   default:

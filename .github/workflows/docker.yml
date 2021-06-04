@@ -60,7 +60,7 @@ jobs:
               uses: actions/checkout@v2
 
             - name: Create .env file
-              run: cp .env.example .env
+              run: cp .env.example .env.testing
 
             - name: Replace environment variables
               run: |
@@ -69,9 +69,6 @@ jobs:
                   sed -i 's/DB_USERNAME.*/DB_USERNAME=${{ env.MYSQL_TEST_USER }}/g' .env.testing
                   sed -i 's/DB_PASSWORD.*/DB_PASSWORD=${{ env.MYSQL_TEST_PASSWORD }}/g' .env.testing
                   sed -i 's/DB_DATABASE.*/DB_DATABASE=${{ env.MYSQL_TEST_DB }}/g' .env.testing
-
-            - name: Print .env.testing variables
-              run: cat .env.testing
 
             - name: Build docker image
               run: docker build -t marketplace_shop_users .

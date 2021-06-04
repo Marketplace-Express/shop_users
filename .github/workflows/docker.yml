@@ -24,6 +24,8 @@ env:
     MYSQL_TEST_USER: shop_users
     MYSQL_TEST_PASSWORD: secret
     MYSQL_TEST_DB: shop_users_test
+    RABBITMQ_USERNAME: guest
+    RABBITMQ_PASSWORD: guest
 
 jobs:
     unit_test:
@@ -44,6 +46,14 @@ jobs:
                     -e MYSQL_DATABASE=shop_users_test
                     --entrypoint sh mysql:8 -c "exec docker-entrypoint.sh mysqld --default-authentication-plugin=mysql_native_password"
 
+            rabbitmq:
+                image: rabbitmq
+                ports:
+                    - 5672
+                options: --health-cmd="rabbitmq-diagnostics -q ping"
+                    --health-interval=5s
+                    --health-timeout=2s
+                    --health-retries=3
         steps:
             - name: Get MySQL service ID
               id: mysql-service
@@ -69,9 +79,13 @@ jobs:
                   sed -i 's/DB_USERNAME.*/DB_USERNAME=${{ env.MYSQL_TEST_USER }}/g' .env.testing
                   sed -i 's/DB_PASSWORD.*/DB_PASSWORD=${{ env.MYSQL_TEST_PASSWORD }}/g' .env.testing
                   sed -i 's/DB_DATABASE.*/DB_DATABASE=${{ env.MYSQL_TEST_DB }}/g' .env.testing
+                  sed -i 's/JURRY_RABBITMQ_HOST.*/JURRY_RABBITMQ_HOST=${{ steps.github-network.outputs.gateway-address }}/g' .env.testing
+                  sed -i 's/JURRY_RABBITMQ_PORT.*/JURRY_RABBITMQ_PORT=${{ job.services.rabbitmq.ports[5672] }}/g' .env.testing
+                  sed -i 's/JURRY_RABBITMQ_USERNAME.*/JURRY_RABBITMQ_USERNAME=${{ env.RABBITMQ_USERNAME }}/g' .env.testing
+                  sed -i 's/JURRY_RABBITMQ_PASSWORD.*/JURRY_RABBITMQ_PASSWORD=${{ env.RABBITMQ_PASSWORD }}/g' .env.testing
 
             - name: Build docker image
               run: docker build -t marketplace_shop_users .
 
             - name: Running unit test
-              run: docker-compose up users-unit-test
+              run: docker-compose run users-unit-test

@@ -59,9 +59,17 @@ jobs:
               id: mysql-service
               run: echo "::set-output name=container-id::$(docker ps | grep -i mysql | awk '{print $1}')"
 
-            - name: Get Github network gateway address
-              id: github-network
+            - name: Get RabbitMQ service ID
+              id: rabbitmq-service
+              run: echo "::set-output name=container-id::$(docker ps | grep -i rabbitmq | awk '{print $1}')"
+
+            - name: Get MySQL network gateway address
+              id: mysql-network
               run: echo "::set-output name=gateway-address::$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.Gateway}}{{end}}' ${{ steps.mysql-service.outputs.container-id }})"
+
+            - name: Get RabbitMQ network gateway address
+              id: rabbitmq-network
+              run: echo "::set-output name=gateway-address::$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.Gateway}}{{end}}' ${{ steps.rabbitmq-service.outputs.container-id }})"
 
             - name: Create docker network
               run: docker network create marketplace-network
@@ -74,12 +82,12 @@ jobs:
 
             - name: Replace environment variables
               run: |
-                  sed -i 's/DB_HOST.*/DB_HOST=${{ steps.github-network.outputs.gateway-address }}/g' .env.testing
+                  sed -i 's/DB_HOST.*/DB_HOST=${{ steps.mysql-network.outputs.gateway-address }}/g' .env.testing
                   sed -i 's/DB_PORT.*/DB_PORT=${{ job.services.mysql.ports[3306] }}/g' .env.testing
                   sed -i 's/DB_USERNAME.*/DB_USERNAME=${{ env.MYSQL_TEST_USER }}/g' .env.testing
                   sed -i 's/DB_PASSWORD.*/DB_PASSWORD=${{ env.MYSQL_TEST_PASSWORD }}/g' .env.testing
                   sed -i 's/DB_DATABASE.*/DB_DATABASE=${{ env.MYSQL_TEST_DB }}/g' .env.testing
-                  sed -i 's/JURRY_RABBITMQ_HOST.*/JURRY_RABBITMQ_HOST=${{ steps.github-network.outputs.gateway-address }}/g' .env.testing
+                  sed -i 's/JURRY_RABBITMQ_HOST.*/JURRY_RABBITMQ_HOST=${{ steps.rabbitmq-network.outputs.gateway-address }}/g' .env.testing
                   sed -i 's/JURRY_RABBITMQ_PORT.*/JURRY_RABBITMQ_PORT=${{ job.services.rabbitmq.ports[5672] }}/g' .env.testing
                   sed -i 's/JURRY_RABBITMQ_USERNAME.*/JURRY_RABBITMQ_USERNAME=${{ env.RABBITMQ_USERNAME }}/g' .env.testing
                   sed -i 's/JURRY_RABBITMQ_PASSWORD.*/JURRY_RABBITMQ_PASSWORD=${{ env.RABBITMQ_PASSWORD }}/g' .env.testing

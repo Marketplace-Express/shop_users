@@ -32,8 +32,4 @@ RUN echo "Installing Composer" && rm -rf vendor composer.lock && \
     composer clearcache && \
     composer install
 
-RUN echo "Generate JWT key pairs" && \
-    ssh-keygen -b 2048 -t rsa -f config/auth/jwt_private.pem -q -N "" && \
-    openssl rsa -in config/auth/jwt_private.pem -pubout -outform PEM -out config/auth/jwt_public.pem
-
 ENTRYPOINT ["/bin/bash", "utilities/docker-entrypoint.sh"]

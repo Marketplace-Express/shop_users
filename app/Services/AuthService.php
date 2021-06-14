@@ -8,6 +8,7 @@
 namespace App\Services;
 
 
+use App\Exceptions\NotFound;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
 use App\Http\Controllers\Annotations\Permissions;
@@ -51,24 +52,32 @@ class AuthService implements AuthInterface
     }
 
     /**
-     * @param string $identifier
-     * @param string $password
+     * @param string|null $identifier
+     * @param string|null $password
+     * @param string|null $refreshToken
      * @return Token
+     * @throws NotFound
      * @throws OperationFailed
      * @throws OperationNotPermitted
-     * @throws \App\Exceptions\NotFound
+     * @throws \Throwable
      */
-    public function authenticate(string $identifier, string $password): Token
+    public function authenticate(?string $identifier, ?string $password, ?string $refreshToken = null): Token
     {
-        if (empty($identifier) || empty($password)) {
+        if (empty($identifier) && empty($password) && empty($refreshToken)) {
             throw new OperationNotPermitted('empty credentials');
         }
 
-        $user = $this->userRepository->getByIdentifierAndPassword($identifier, $password);
+        if (!empty($identifier) && !empty($password)) {
+            $user = $this->userRepository->getByIdentifierAndPassword($identifier, $password);
+        } elseif (!empty($refreshToken)) {
+            $this->jwt::decode($refreshToken, $this->getPublicKey(), [env('JWT_ALG')]);
+            $user = $this->userRepository->getByRefreshToken($refreshToken);
+        }
+
         $token = $this->getUserToken($user);
 
         if (!empty($token)) {
-            if ($this->isAuthenticated($token->token)) {
+            if ($this->isAuthenticated($token->access_token)) {
                 return $token;
             } else {
                 $token->delete();
@@ -78,7 +87,7 @@ class AuthService implements AuthInterface
         // Generate new CSRF Token
         $csrfToken = $this->generateCsrfToken();
 
-        $generatedToken = $this->generateToken([
+        $accessToken = $this->generateToken([
             'sub' => $user->email,
             'iss' => env('APP_NAME'),
             'exp' => time() + env('JWT_TTL') * 3600, // hours to seconds,
@@ -86,7 +95,13 @@ class AuthService implements AuthInterface
             'csrf_token' => $csrfToken
         ]);
 
-        return $this->saveGeneratedToken($user->getAuthIdentifier(), $generatedToken, $csrfToken);
+        $refreshToken = $this->generateToken([
+            'sub' => $user->email,
+            'iss' => env('APP_NAME'),
+            'exp' => time() + env('JWT_REFRESH_TTL') * 3600, // hours to seconds
+        ]);
+
+        return $this->saveGeneratedToken($user->getAuthIdentifier(), $accessToken, $refreshToken, $csrfToken);
     }
 
     /**
@@ -178,15 +193,17 @@ class AuthService implements AuthInterface
     /**
      * @param string $userId
      * @param string $token
+     * @param string $refreshToken
      * @param string $csrfToken
      * @return Token
      * @throws OperationFailed
      */
-    private function saveGeneratedToken(string $userId, string $token, string $csrfToken): Token
+    private function saveGeneratedToken(string $userId, string $accessToken, string $refreshToken, string $csrfToken): Token
     {
         $token = new Token([
             'user_id' => $userId,
-            'token' => $token,
+            'access_token' => $accessToken,
+            'refresh_token' => $refreshToken,
             'csrf_token' => $csrfToken,
             'expires_at' => time() + env('JWT_TTL') * 3600 //seconds
         ]);

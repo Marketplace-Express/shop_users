@@ -24,6 +24,7 @@ $router->group(['prefix' => 'api'], function () use ($router) {
     $router->get('/users/banned', 'UserController@getBanned');
     $router->post('/user/register', 'UserController@register');
     $router->post('/user/login', 'UserController@login');
+    $router->post('/user/refreshToken', 'AuthController@refreshToken');
     $router->post('/user/all', 'UserController@getByIds');
 
     // RoleController

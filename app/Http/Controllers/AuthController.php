@@ -8,7 +8,9 @@
 namespace App\Http\Controllers;
 
 
+use App\Exceptions\NotFound;
 use App\Services\AuthService;
+use Firebase\JWT\ExpiredException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -62,6 +64,26 @@ class AuthController extends BaseController
                 $request->get('authorizeData')
             );
             $response = $this->prepareResponse($isAuthorized);
+        } catch (\Throwable $exception) {
+            $response = $this->prepareResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return $response;
+    }
+
+    /**
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refreshToken(Request $request)
+    {
+        try {
+            $token = $this->service->authenticate(null, null, $request->get('refresh_token'));
+            $response = $this->prepareResponse($token);
+        } catch (ExpiredException | \UnexpectedValueException $exception) {
+            $response = $this->prepareResponse('invalid token', Response::HTTP_UNAUTHORIZED);
+        } catch (NotFound $exception) {
+            $response = $this->prepareResponse($exception->getMessage(), Response::HTTP_NOT_FOUND);
         } catch (\Throwable $exception) {
             $response = $this->prepareResponse($exception->getMessage(), Response::HTTP_INTERNAL_SERVER_ERROR);
         }

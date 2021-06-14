@@ -18,6 +18,7 @@ class Tokens extends Migration
         Schema::create(self::TABLE_NAME, function (Blueprint $table) {
             $table->uuid('user_id')->primary();
             $table->text('token');
+            $table->text('refresh_token');
             $table->string('csrf_token', 20);
             $table->integer('expires_at');
             $table->timestamps();

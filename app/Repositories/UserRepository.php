@@ -14,6 +14,7 @@ use App\Exceptions\NotFound;
 use App\Exceptions\OperationFailed;
 use App\Exceptions\OperationNotPermitted;
 use App\Models\BannedUser;
+use App\Models\Token;
 use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Hash;
@@ -216,5 +217,27 @@ class UserRepository
                 'user' => $user
             ];
         }, $bannedUsers);
+    }
+
+    /**
+     * @param string $refreshToken
+     * @return User
+     * @throws NotFound
+     */
+    public function getByRefreshToken(string $refreshToken): User
+    {
+        $token = Token::firstWhere('refresh_token', $refreshToken);
+
+        if (!$token) {
+            throw new NotFound('token not found');
+        }
+
+        $user = User::firstWhere('user_id', $token->user_id);
+
+        if (!$user) {
+            throw new NotFound('user not found');
+        }
+
+        return $user;
     }
 }
